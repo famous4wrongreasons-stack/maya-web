@@ -85,8 +85,8 @@ export default function Catalogue() {
             </AnimatePresence>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <button onClick={() => openMaya(`Подойдёт ли мне стрижка: ${cur.title}?`)} className="w-full rounded-full btn-fill px-6 py-3 text-center text-[11px] uppercase tracking-wide2 text-[#07070A] transition hover:opacity-90 sm:w-auto">
-                Подойдёт ли мне?
+              <button onClick={() => openMaya(`Расскажи про стрижку: ${cur.title}`)} className="w-full rounded-full btn-fill px-6 py-3 text-center text-[11px] uppercase tracking-wide2 text-[#07070A] transition hover:opacity-90 sm:w-auto">
+                Спросить про стрижку
               </button>
               <BookButton iconSize={17} className="w-full rounded-full px-6 py-3 text-[11px] uppercase tracking-wide2 sm:w-auto" />
             </div>

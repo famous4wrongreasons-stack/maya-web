@@ -170,7 +170,7 @@ export default function MayaChat() {
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <Orb size={48} />
                   <p className="mt-5 max-w-[16rem] text-sm font-light leading-relaxed text-ink/70">
-                    Здравствуйте. Я Maya — помогу подобрать стрижку, мастера и время. С чего начнём?
+                    Здравствуйте. Я Maya — помогу записаться, расскажу об услугах, мастерах и свободном времени. С чего начнём?
                   </p>
                 </div>
               ) : (
