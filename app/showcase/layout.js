@@ -12,6 +12,10 @@ const playfair = Playfair_Display({
 export const metadata = {
   title: "Motion System — Showcase",
   description: "GSAP + ScrollTrigger + Lenis: переиспользуемые компоненты анимаций.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function ShowcaseLayout({ children }) {
