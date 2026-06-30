@@ -28,7 +28,7 @@ function HeroCtas() {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease, delay: 1.15 }} className="mt-6 flex flex-col items-center gap-3 sm:flex-row md:mt-9">
       <BookButton iconSize={20} className="min-w-[230px] rounded-full px-7 py-3.5 text-[11px] uppercase tracking-wide2 md:py-3" />
-      <button onClick={() => openMaya("Подобрать стрижку")} className={ctaCls}>
+      <button onClick={() => openMaya("Хочу записаться")} className={ctaCls}>
         <span className="maya-orb-sm" />
         Спросить <span className="font-maya normal-case tracking-normal text-[12px]">Maya</span>
       </button>

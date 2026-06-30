@@ -27,11 +27,10 @@ const manrope = localFont({
   display: "swap",
 });
 
-// мужскаяэстетика.рф в punycode
-const SITE_URL = "https://xn--80aaocmjdk0cclbf8l3a.xn--p1ai";
+const SITE_URL = "https://malesthetic.pro";
 const TITLE = "Мужская Эстетика — Парикмахерская · Ставрополь";
 const DESCRIPTION =
-  "Премиальная мужская парикмахерская в Ставрополе. Стрижка, борода и уход. Цифровой администратор Maya подберёт стрижку, мастера и время.";
+  "Премиальная мужская парикмахерская в Ставрополе. Стрижка, борода и уход. Цифровой администратор Maya поможет записаться и расскажет об услугах, мастерах и свободных окнах.";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),

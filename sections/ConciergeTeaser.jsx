@@ -27,8 +27,8 @@ export default function ConciergeTeaser() {
           <DividerReveal color="var(--maya)" className="mx-auto mt-7 w-24 md:mx-0" />
 
           <MediaReveal as="p" y={20} scale={1} duration={0.9} delay={0.1} className="mx-auto mt-7 max-w-xl text-[15px] font-light leading-relaxed text-ink/60 md:mx-0">
-            Не виджет поддержки, а часть бренда. Подберёт стрижку под форму лица,
-            предложит мастера, рассчитает стоимость, найдёт ближайшее окно и подскажет уход.
+            Не виджет поддержки, а часть бренда. Maya поможет записаться, расскажет
+            об услугах и мастерах, рассчитает стоимость, найдёт ближайшее окно и подскажет базовый уход.
           </MediaReveal>
 
           <div className="mt-10 flex flex-wrap justify-center gap-2.5 md:justify-start">

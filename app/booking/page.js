@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "@/components/Logo";
 import { MASTERS } from "@/data/masters";
-import { ycServices, ycDates, ycTimes, ycBook } from "@/lib/api/proxy";
+import { useAuth } from "@/features/auth/auth";
+import { ycServices, ycDates, ycTimes, ycBook, bookingPrefill } from "@/lib/api/proxy";
 import { asset } from "@/lib/asset";
 
 const ease = [0.16, 1, 0.3, 1];
@@ -22,7 +23,14 @@ const fmtDay = (iso) => {
   return { wd: WD[d.getDay()], n: d.getDate() };
 };
 
+const authName = (user) =>
+  [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim();
+
+const authPhone = (user) =>
+  user?.phone || user?.phone_number || user?.phoneRaw || user?.contact_phone || "";
+
 export default function BookingPage() {
+  const { user, ready } = useAuth();
   const [step, setStep] = useState(0);
   const [master, setMaster] = useState(null);
   const [service, setService] = useState(null);
@@ -40,8 +48,62 @@ export default function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [bookError, setBookError] = useState(null);
   const [done, setDone] = useState(false);
+  const [prefillState, setPrefillState] = useState("idle");
+  const autofilledName = useRef("");
+  const autofilledPhone = useRef("");
 
   const back = () => setStep((s) => Math.max(s - 1, 0));
+
+  const applyName = (nextName) => {
+    const clean = String(nextName || "").trim();
+    if (!clean) return;
+    setName((current) => {
+      if (current.trim() && current !== autofilledName.current) return current;
+      autofilledName.current = clean;
+      return clean;
+    });
+  };
+
+  const applyPhone = (nextPhone) => {
+    const clean = String(nextPhone || "").trim();
+    if (!clean) return;
+    setPhone((current) => {
+      if (current.trim() && current !== autofilledPhone.current) return current;
+      autofilledPhone.current = clean;
+      return clean;
+    });
+  };
+
+  useEffect(() => {
+    if (!ready) return;
+    let cancelled = false;
+    const fallbackName = authName(user);
+    const fallbackPhone = authPhone(user);
+    applyName(fallbackName);
+    applyPhone(fallbackPhone);
+
+    setPrefillState("loading");
+    bookingPrefill(user)
+      .then((profile) => {
+        if (cancelled) return;
+        if (profile?.success && profile.known) {
+          applyName(profile.name || profile.full_name || fallbackName);
+          applyPhone(profile.phone || fallbackPhone);
+          if (profile.phone || fallbackPhone) setPrefillState("filled");
+          else if (profile.needs_consent) setPrefillState("needs_consent");
+          else setPrefillState("phone_missing");
+        } else if (fallbackName || fallbackPhone) {
+          setPrefillState(fallbackPhone ? "filled" : "name_only");
+        } else {
+          setPrefillState("idle");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setPrefillState(fallbackName || fallbackPhone ? (fallbackPhone ? "filled" : "name_only") : "idle");
+      });
+
+    return () => { cancelled = true; };
+  }, [ready, user]);
 
   const pickMaster = async (m) => {
     setMaster(m);
@@ -207,6 +269,16 @@ export default function BookingPage() {
                       {master?.name} · {service?.title}<br />
                       <span className="text-ink/45">{dd?.wd} {dd?.n}, {time} · {service ? price(service) : ""}</span>
                     </div>
+                    {prefillState === "filled" && (
+                      <p className="rounded-xl border border-maya/20 bg-maya/10 px-4 py-3 text-[12px] font-light leading-relaxed text-ink/65">
+                        Данные подтянули из кабинета — проверьте и подтвердите запись.
+                      </p>
+                    )}
+                    {(prefillState === "name_only" || prefillState === "phone_missing" || prefillState === "needs_consent") && (
+                      <p className="rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-[12px] font-light leading-relaxed text-ink/60">
+                        Телефон не привязан к кабинету — укажите номер для этой записи. Имя можно поправить, если нужно.
+                      </p>
+                    )}
                     <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ваше имя" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
                     <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" inputMode="tel" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
                     <label className="flex cursor-pointer items-start gap-3 pt-1 text-[12px] font-light leading-relaxed text-ink/55">
@@ -218,7 +290,7 @@ export default function BookingPage() {
                     </label>
                     {bookError && <p className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[13px] font-light text-red-300/90">{bookError}</p>}
                     <button onClick={submit} disabled={!agree || !name.trim() || phone.trim().length < 6 || submitting} className={`w-full rounded-full py-4 text-[11px] uppercase tracking-wide2 transition ${agree && name.trim() && phone.trim().length >= 6 && !submitting ? "btn-fill" : "cursor-not-allowed border border-line text-ink/30"}`}>
-                      {submitting ? "Записываем…" : "Подтвердить запись"}
+                      {submitting ? "Записываем…" : "Записаться"}
                     </button>
                     <p className="text-center text-[10px] uppercase tracking-wide2 text-ink/35">Запись создаётся в YClients салона</p>
                   </div>

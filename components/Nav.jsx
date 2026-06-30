@@ -139,7 +139,7 @@ export default function Nav() {
 
             <div className="flex flex-col gap-3">
               <BookButton iconSize={18} onClick={() => setOpen(false)} className="rounded-full px-5 py-4 text-[12px] uppercase tracking-wide2" />
-              <button onClick={() => { setOpen(false); openMaya("Подобрать стрижку"); }} className="flex items-center justify-center gap-2 rounded-full border border-line px-5 py-4 text-[12px] uppercase tracking-wide2 text-ink/90">
+              <button onClick={() => { setOpen(false); openMaya("Хочу записаться"); }} className="flex items-center justify-center gap-2 rounded-full border border-line px-5 py-4 text-[12px] uppercase tracking-wide2 text-ink/90">
                 <span className="maya-orb-sm" /> Спросить <span className="font-maya normal-case tracking-normal text-[13px]">Maya</span>
               </button>
               <AccountControl full onDone={() => setOpen(false)} />
