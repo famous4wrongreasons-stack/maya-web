@@ -6,6 +6,8 @@ import MayaChat from "@/features/maya-chat/MayaChat";
 import PromoBanner from "@/features/promo/PromoBanner";
 import ExitIntentBanner from "@/features/promo/ExitIntentBanner";
 import { AuthProvider } from "@/features/auth/auth";
+import BusinessStructuredData from "@/components/BusinessStructuredData";
+import YandexMetrika from "@/components/YandexMetrika";
 
 const montserrat = localFont({
   src: [
@@ -27,11 +29,12 @@ const manrope = localFont({
   display: "swap",
 });
 
-// мужскаяэстетика.рф в punycode
-const SITE_URL = "https://xn--80aaocmjdk0cclbf8l3a.xn--p1ai";
+const SITE_URL = "https://malesthetic.pro";
 const TITLE = "Мужская Эстетика — Парикмахерская · Ставрополь";
 const DESCRIPTION =
-  "Премиальная мужская парикмахерская в Ставрополе. Стрижка, борода и уход. Цифровой администратор Maya подберёт стрижку, мастера и время.";
+  "Премиальная мужская парикмахерская в Ставрополе. Стрижка, борода и уход. Цифровой администратор Maya поможет записаться и расскажет об услугах, мастерах и свободных окнах.";
+const YANDEX_VERIFICATION = process.env.NEXT_PUBLIC_YANDEX_WEBMASTER_VERIFICATION;
+const GOOGLE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -61,6 +64,10 @@ export const metadata = {
     title: TITLE,
     description: DESCRIPTION,
   },
+  verification: {
+    ...(YANDEX_VERIFICATION ? { yandex: YANDEX_VERIFICATION } : {}),
+    ...(GOOGLE_VERIFICATION ? { google: GOOGLE_VERIFICATION } : {}),
+  },
 };
 
 export const viewport = {
@@ -73,6 +80,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ru" className={`${montserrat.variable} ${manrope.variable}`}>
       <body>
+        <BusinessStructuredData />
+        <YandexMetrika />
         <AuthProvider>
           <SmoothScroll>{children}</SmoothScroll>
           <VideoWarmup />
