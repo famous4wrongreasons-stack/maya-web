@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/features/cart/cart";
-import { useAuth, TelegramLogin } from "@/features/auth/auth";
+import { useAuth, TelegramConsentLogin } from "@/features/auth/auth";
 import { shopCreate } from "@/lib/api/proxy";
+import ConsentCheckbox, { CONSENT_ERROR } from "@/components/ConsentCheckbox";
 
 const ease = [0.16, 1, 0.3, 1];
 const rub = (n) => n.toLocaleString("ru") + " ₽";
@@ -18,12 +19,18 @@ export default function CheckoutPage() {
   const [agree, setAgree] = useState(false);
   const [payingId, setPayingId] = useState(null);
   const [error, setError] = useState(null);
+  const [consentError, setConsentError] = useState(null);
 
-  const baseOk = name.trim().length > 1 && phone.trim().length > 5 && agree && !!user;
+  const detailsOk = name.trim().length > 1 && phone.trim().length > 5 && !!user;
 
   const pay = async (it) => {
-    if (!baseOk || payingId) return;
+    if (!detailsOk || payingId) return;
     setError(null);
+    if (!agree) {
+      setConsentError(CONSENT_ERROR);
+      return;
+    }
+    setConsentError(null);
     setPayingId(it.id);
     try {
       const d = await shopCreate(
@@ -78,7 +85,7 @@ export default function CheckoutPage() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
                       </button>
                     </div>
-                    <button onClick={() => pay(it)} disabled={!baseOk || !!payingId} className={`mt-3 w-full rounded-full py-2.5 text-[11px] uppercase tracking-wide2 transition ${baseOk && !payingId ? "btn-fill" : "cursor-not-allowed border border-line text-ink/30"}`}>
+                    <button onClick={() => pay(it)} disabled={!detailsOk || !!payingId} className={`mt-3 w-full rounded-full py-2.5 text-[11px] uppercase tracking-wide2 transition ${detailsOk && !payingId ? "btn-fill" : "cursor-not-allowed border border-line text-ink/30"}`}>
                       {payingId === it.id ? "Создаём оплату…" : `Оплатить ${rub(it.amount)}`}
                     </button>
                   </div>
@@ -95,13 +102,16 @@ export default function CheckoutPage() {
               <div className="mt-8 space-y-3">
                 <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Имя получателя" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
                 <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон получателя" inputMode="tel" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
-                <label className="flex cursor-pointer items-start gap-3 pt-1 text-[12px] font-light leading-relaxed text-ink/55">
-                  <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-gold" />
-                  <span>
-                    Соглашаюсь на обработку персональных данных согласно{" "}
-                    <Link href="/privacy" target="_blank" className="text-ink/80 underline underline-offset-2 transition hover:text-ink">политике конфиденциальности</Link>.
-                  </span>
-                </label>
+                <ConsentCheckbox
+                  id="checkout-personal-data-consent"
+                  checked={agree}
+                  onChange={(next) => {
+                    setAgree(next);
+                    if (next) setConsentError(null);
+                  }}
+                  error={consentError}
+                  className="pt-1"
+                />
               </div>
 
               {/* Вход (обязателен для оплаты) */}
@@ -117,7 +127,7 @@ export default function CheckoutPage() {
                   ) : (
                     <div>
                       <p className="text-sm font-light text-ink/70">Войдите через Telegram, чтобы оплатить — покупка придёт в ваш аккаунт <span className="font-maya text-maya">Maya</span>.</p>
-                      <div className="mt-3"><TelegramLogin /></div>
+                      <div className="mt-3"><TelegramConsentLogin /></div>
                       <p className="mt-2 text-[10px] uppercase tracking-wide2 text-ink/30">Вход работает на боевом домене сайта</p>
                     </div>
                   )}

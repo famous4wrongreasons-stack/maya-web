@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { tgVerify } from "@/lib/api/proxy";
+import ConsentCheckbox, { CONSENT_ERROR } from "@/components/ConsentCheckbox";
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
@@ -63,6 +64,37 @@ export function TelegramLogin({ onDone, size = "medium" }) {
   return <div ref={ref} className="min-h-[40px]" />;
 }
 
+export function TelegramConsentLogin({ onDone, size = "medium" }) {
+  const consentId = useId();
+  const [agree, setAgree] = useState(false);
+  const [error, setError] = useState(null);
+
+  return (
+    <div className="space-y-3">
+      <ConsentCheckbox
+        id={consentId}
+        checked={agree}
+        onChange={(next) => {
+          setAgree(next);
+          if (next) setError(null);
+        }}
+        error={error}
+      />
+      {agree ? (
+        <TelegramLogin onDone={onDone} size={size} />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setError(CONSENT_ERROR)}
+          className="w-full rounded-full border border-line px-5 py-3 text-[11px] uppercase tracking-wide2 text-ink/45 transition hover:text-ink/70"
+        >
+          Подтвердите согласие для входа
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Заметный контрол входа для шапки: «Войти» → поповер с виджетом Telegram,
 // после входа — имя пользователя + «Выйти».
 export function AccountControl({ className = "", full = false, onDone }) {
@@ -91,16 +123,8 @@ export function AccountControl({ className = "", full = false, onDone }) {
   // кнопок + НЕВИДИМЫЙ официальный Telegram-виджет поверх (ловит тап → реальная авторизация).
   if (full) {
     return (
-      <div className={`tg-login relative w-full ${className}`}>
-        <div className="pointer-events-none flex w-full items-center justify-center gap-2.5 rounded-full border border-line px-5 py-4 text-[12px] uppercase tracking-wide2 text-ink/90">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#3aa9e0" aria-hidden>
-            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
-          </svg>
-          Войти через <span className="font-light normal-case tracking-normal">Telegram</span>
-        </div>
-        <div className="tg-login-hit absolute inset-0 flex items-center justify-center overflow-hidden opacity-0">
-          <TelegramLogin size="large" onDone={onDone} />
-        </div>
+      <div className={`w-full ${className}`}>
+        <TelegramConsentLogin size="large" onDone={onDone} />
       </div>
     );
   }
@@ -115,7 +139,7 @@ export function AccountControl({ className = "", full = false, onDone }) {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-full z-50 mt-2 rounded-2xl border border-line bg-panel p-4 shadow-2xl">
             <p className="mb-3 whitespace-nowrap text-[12px] font-light text-ink/70">Вход через Telegram</p>
-            <TelegramLogin onDone={() => setOpen(false)} />
+            <TelegramConsentLogin onDone={() => setOpen(false)} />
           </div>
         </>
       )}

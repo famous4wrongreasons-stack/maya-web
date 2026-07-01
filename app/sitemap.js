@@ -6,6 +6,8 @@ const routes = [
   { path: "/", priority: 1 },
   { path: "/booking/", priority: 0.9 },
   { path: "/shop/", priority: 0.7 },
+  { path: "/personal-data-policy/", priority: 0.3 },
+  { path: "/personal-data-consent/", priority: 0.3 },
   { path: "/privacy/", priority: 0.3 },
 ];
 

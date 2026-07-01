@@ -8,6 +8,7 @@ import { MASTERS } from "@/data/masters";
 import { useAuth } from "@/features/auth/auth";
 import { ycServices, ycDates, ycTimes, ycBook, bookingPrefill } from "@/lib/api/proxy";
 import { asset } from "@/lib/asset";
+import ConsentCheckbox, { CONSENT_ERROR } from "@/components/ConsentCheckbox";
 
 const ease = [0.16, 1, 0.3, 1];
 const WD = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
@@ -47,6 +48,7 @@ export default function BookingPage() {
   const [agree, setAgree] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookError, setBookError] = useState(null);
+  const [consentError, setConsentError] = useState(null);
   const [done, setDone] = useState(false);
   const [prefillState, setPrefillState] = useState("idle");
   const autofilledName = useRef("");
@@ -136,9 +138,14 @@ export default function BookingPage() {
   const pickTime = (t) => { setTime(t); setStep(3); };
 
   const submit = async () => {
-    if (!agree || submitting) return;
-    setSubmitting(true);
+    if (submitting) return;
     setBookError(null);
+    if (!agree) {
+      setConsentError(CONSENT_ERROR);
+      return;
+    }
+    setConsentError(null);
+    setSubmitting(true);
     try {
       const d = await ycBook({ staffId: master.staffId, serviceId: service.id, date, time, name, phone });
       if (d?.success) setDone(true);
@@ -281,15 +288,18 @@ export default function BookingPage() {
                     )}
                     <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ваше имя" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
                     <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" inputMode="tel" className="w-full rounded-xl border border-line bg-transparent px-4 py-3.5 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
-                    <label className="flex cursor-pointer items-start gap-3 pt-1 text-[12px] font-light leading-relaxed text-ink/55">
-                      <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-gold" />
-                      <span>
-                        Соглашаюсь на обработку персональных данных согласно{" "}
-                        <Link href="/privacy" target="_blank" className="text-ink/80 underline underline-offset-2 transition hover:text-ink">политике конфиденциальности</Link>.
-                      </span>
-                    </label>
+                    <ConsentCheckbox
+                      id="booking-personal-data-consent"
+                      checked={agree}
+                      onChange={(next) => {
+                        setAgree(next);
+                        if (next) setConsentError(null);
+                      }}
+                      error={consentError}
+                      className="pt-1"
+                    />
                     {bookError && <p className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[13px] font-light text-red-300/90">{bookError}</p>}
-                    <button onClick={submit} disabled={!agree || !name.trim() || phone.trim().length < 6 || submitting} className={`w-full rounded-full py-4 text-[11px] uppercase tracking-wide2 transition ${agree && name.trim() && phone.trim().length >= 6 && !submitting ? "btn-fill" : "cursor-not-allowed border border-line text-ink/30"}`}>
+                    <button onClick={submit} disabled={!name.trim() || phone.trim().length < 6 || submitting} className={`w-full rounded-full py-4 text-[11px] uppercase tracking-wide2 transition ${name.trim() && phone.trim().length >= 6 && !submitting ? "btn-fill" : "cursor-not-allowed border border-line text-ink/30"}`}>
                       {submitting ? "Записываем…" : "Записаться"}
                     </button>
                     <p className="text-center text-[10px] uppercase tracking-wide2 text-ink/35">Запись создаётся в YClients салона</p>
