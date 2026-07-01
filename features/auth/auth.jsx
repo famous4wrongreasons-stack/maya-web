@@ -61,7 +61,7 @@ export function TelegramLogin({ onDone, size = "medium" }) {
     return () => {};
   }, []);
 
-  return <div ref={ref} className="min-h-[40px]" />;
+  return <div ref={ref} className="flex min-h-[40px] items-center justify-center" />;
 }
 
 export function TelegramConsentLogin({ onDone, size = "medium" }) {
