@@ -100,6 +100,16 @@ export function TelegramConsentLogin({ onDone, size = "medium" }) {
 export function AccountControl({ className = "", full = false, onDone }) {
   const { user, ready, logout } = useAuth();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open || full || user) return;
+    const onKey = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, full, user]);
+
   if (!ready) return null;
 
   if (user) {
@@ -135,13 +145,26 @@ export function AccountControl({ className = "", full = false, onDone }) {
         Войти
       </button>
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-50 mt-2 rounded-2xl border border-line bg-panel p-4 shadow-2xl">
-            <p className="mb-3 whitespace-nowrap text-[12px] font-light text-ink/70">Вход через Telegram</p>
+        <div className="fixed inset-0 z-[70] flex items-start justify-center px-4 pt-24 sm:pt-28">
+          <div className="absolute inset-0 bg-base/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Вход через Telegram"
+            className="relative w-full max-w-[440px] rounded-[1.75rem] border border-line bg-panel p-6 shadow-2xl sm:p-7"
+          >
+            <button
+              type="button"
+              aria-label="Закрыть"
+              onClick={() => setOpen(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink/55 transition hover:text-ink"
+            >
+              ×
+            </button>
+            <p className="mb-5 pr-10 text-[12px] font-light uppercase tracking-wide2 text-ink/70">Вход через Telegram</p>
             <TelegramConsentLogin onDone={() => setOpen(false)} />
           </div>
-        </>
+        </div>
       )}
     </div>
   );
