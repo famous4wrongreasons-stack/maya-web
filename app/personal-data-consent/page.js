@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { BRAND } from "@/data/brand";
+import { OPERATOR } from "@/data/operator";
 import { PERSONAL_DATA_POLICY_PATH } from "@/components/ConsentCheckbox";
 
 export const metadata = {
@@ -46,9 +47,10 @@ export default function PersonalDataConsentPage() {
 
         <Section n="1" title="Кому дается согласие">
           <p>
-            Пользователь сайта {SITE_URL} дает согласие владельцу сайта {SITE_URL} и барбершопа
-            «{BRAND.name}», расположенному по адресу: {BRAND.city}, {BRAND.address}, на обработку
-            персональных данных в порядке, указанном в настоящем документе и{" "}
+            Пользователь сайта {SITE_URL} дает согласие Оператору: {OPERATOR.legalName}, ИНН{" "}
+            {OPERATOR.inn}, ОГРНИП {OPERATOR.ogrnip}, адрес: {OPERATOR.legalAddress}, владельцу сайта{" "}
+            {SITE_URL} и барбершопа «{BRAND.name}», на обработку персональных данных в порядке,
+            указанном в настоящем документе и{" "}
             <Link href={PERSONAL_DATA_POLICY_PATH} className="text-ink/80 underline underline-offset-2 transition hover:text-ink">
               Политике обработки персональных данных
             </Link>
@@ -115,8 +117,8 @@ export default function PersonalDataConsentPage() {
             <a href={BRAND.telegram} target="_blank" rel="noreferrer" className="text-ink/80 underline underline-offset-2 transition hover:text-ink">
               {BRAND.telegramHandle}
             </a>{" "}
-            или по адресу: {BRAND.city}, {BRAND.address}. После получения отзыва Оператор прекращает обработку,
-            если отсутствуют иные законные основания для ее продолжения.
+            или по адресу Оператора: {OPERATOR.legalAddress}. После получения отзыва Оператор прекращает
+            обработку, если отсутствуют иные законные основания для ее продолжения.
           </p>
         </Section>
       </article>

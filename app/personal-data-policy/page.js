@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { BRAND } from "@/data/brand";
+import { OPERATOR } from "@/data/operator";
 import { PERSONAL_DATA_CONSENT_PATH } from "@/components/ConsentCheckbox";
 
 export const metadata = {
@@ -51,9 +52,9 @@ export default function PersonalDataPolicyPage() {
             и клиентов сайта {SITE_URL}, PWA, онлайн-записи, магазина и чата MAYA.
           </p>
           <p>
-            Оператор персональных данных: владелец сайта {SITE_URL} и барбершопа «{BRAND.name}»,
-            осуществляющий деятельность по адресу: {BRAND.city}, {BRAND.address}. Контакты Оператора:
-            телефон{" "}
+            Оператор персональных данных: {OPERATOR.legalName}, ИНН {OPERATOR.inn}, ОГРНИП{" "}
+            {OPERATOR.ogrnip}, адрес: {OPERATOR.legalAddress}. Оператор является владельцем сайта{" "}
+            {SITE_URL} и барбершопа «{BRAND.name}». Контакты Оператора: телефон{" "}
             <a href={`tel:${BRAND.phoneRaw}`} className="text-ink/80 underline underline-offset-2 transition hover:text-ink">
               {BRAND.phone}
             </a>
@@ -182,7 +183,8 @@ export default function PersonalDataPolicyPage() {
           </List>
           <p>
             Для обращения используйте телефон {BRAND.phone}, Telegram {BRAND.telegramHandle} или письменное
-            обращение по адресу барбершопа. В обращении нужно указать способ обратной связи и суть запроса.
+            обращение по адресу Оператора: {OPERATOR.legalAddress}. В обращении нужно указать способ
+            обратной связи и суть запроса.
           </p>
         </Section>
 
@@ -213,9 +215,8 @@ export default function PersonalDataPolicyPage() {
         </Section>
 
         <p className="mt-12 rounded-2xl border border-line bg-panel/30 p-5 text-[12px] font-light leading-relaxed text-ink/45">
-          Для полной юридической точности владельцу сайта нужно указать в публичных реквизитах точное
-          наименование оператора персональных данных, ИНН/ОГРН или ОГРНИП, если эти сведения отличаются
-          от бренда «{BRAND.name}».
+          Реквизиты Оператора: {OPERATOR.displayName}, ИНН {OPERATOR.inn}, ОГРНИП {OPERATOR.ogrnip},
+          адрес: {OPERATOR.legalAddress}.
         </p>
       </article>
     </main>
