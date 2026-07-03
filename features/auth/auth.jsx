@@ -64,22 +64,27 @@ export function TelegramLogin({ onDone, size = "medium" }) {
   return <div ref={ref} className="flex min-h-[40px] items-center justify-center" />;
 }
 
-export function TelegramConsentLogin({ onDone, size = "medium" }) {
+export function TelegramConsentLogin({ onDone, onConsentAccepted, size = "medium" }) {
   const consentId = useId();
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState(null);
 
   return (
     <div className="space-y-3">
-      <ConsentCheckbox
-        id={consentId}
-        checked={agree}
-        onChange={(next) => {
-          setAgree(next);
-          if (next) setError(null);
-        }}
-        error={error}
-      />
+      {!agree && (
+        <ConsentCheckbox
+          id={consentId}
+          checked={agree}
+          onChange={(next) => {
+            setAgree(next);
+            if (next) {
+              setError(null);
+              onConsentAccepted && onConsentAccepted();
+            }
+          }}
+          error={error}
+        />
+      )}
       {agree ? (
         <TelegramLogin onDone={onDone} size={size} />
       ) : (

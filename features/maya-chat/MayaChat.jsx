@@ -243,7 +243,7 @@ export default function MayaChat() {
                 <p className="text-[13px] font-light leading-relaxed text-ink/70">
                   Войдите через Telegram, чтобы поговорить с <span className="font-maya text-maya">Maya</span> по-настоящему.
                 </p>
-                <div className="mt-3"><TelegramConsentLogin /></div>
+                <div className="mt-3"><TelegramConsentLogin onConsentAccepted={() => updateChatAgree(true)} /></div>
                 <p className="mt-2 text-[10px] uppercase tracking-wide2 text-ink/30">Вход работает на боевом домене сайта</p>
               </div>
             ) : (
@@ -268,13 +268,15 @@ export default function MayaChat() {
                     </button>
                   )}
                 </div>
-                <ConsentCheckbox
-                  id="maya-chat-personal-data-consent"
-                  checked={chatAgree}
-                  onChange={updateChatAgree}
-                  error={chatConsentError}
-                  className="mt-3"
-                />
+                {!chatAgree && (
+                  <ConsentCheckbox
+                    id="maya-chat-personal-data-consent"
+                    checked={chatAgree}
+                    onChange={updateChatAgree}
+                    error={chatConsentError}
+                    className="mt-3"
+                  />
+                )}
               </div>
             )}
 
