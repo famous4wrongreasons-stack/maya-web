@@ -8,6 +8,7 @@ import ExitIntentBanner from "@/features/promo/ExitIntentBanner";
 import { AuthProvider } from "@/features/auth/auth";
 import BusinessStructuredData from "@/components/BusinessStructuredData";
 import YandexMetrika from "@/components/YandexMetrika";
+import CookieNotice from "@/components/CookieNotice";
 
 const montserrat = localFont({
   src: [
@@ -88,6 +89,7 @@ export default function RootLayout({ children }) {
           <MayaChat />
           <PromoBanner />
           <ExitIntentBanner />
+          <CookieNotice />
         </AuthProvider>
       </body>
     </html>

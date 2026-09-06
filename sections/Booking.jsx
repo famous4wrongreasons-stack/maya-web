@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SERVICES } from "@/data/services";
 import { MASTERS } from "@/data/masters";
+import ConsentCheckbox, { CONSENT_ERROR } from "@/components/ConsentCheckbox";
 
 const ease = [0.16, 1, 0.3, 1];
 const SLOTS = ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00", "20:30"];
@@ -13,6 +14,10 @@ const STEPS = ["Услуга", "Мастер", "Время", "Контакты"]
 export default function Booking() {
   const [step, setStep] = useState(0);
   const [pick, setPick] = useState({ service: null, master: null, day: 0, time: null });
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [agree, setAgree] = useState(false);
+  const [error, setError] = useState(null);
   const [done, setDone] = useState(false);
 
   const days = useMemo(() => {
@@ -29,7 +34,15 @@ export default function Booking() {
   const set = (patch) => setPick((p) => ({ ...p, ...patch }));
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const back = () => setStep((s) => Math.max(s - 1, 0));
-  const canNext = [pick.service, pick.master, pick.time, true][step];
+  const submit = () => {
+    if (!agree) {
+      setError(CONSENT_ERROR);
+      return;
+    }
+    if (!name.trim() || phone.trim().length < 6) return;
+    setError(null);
+    setDone(true);
+  };
 
   return (
     <section id="booking" className="px-6">
@@ -60,7 +73,7 @@ export default function Booking() {
                 <p className="mx-auto mt-3 max-w-sm text-sm font-light leading-relaxed text-ink/60">
                   {pick.service} · {pick.master} · {days[pick.day].wd} {days[pick.day].n}, {pick.time}. Подключим YClients — и запись создастся в расписании автоматически.
                 </p>
-                <button onClick={() => { setDone(false); setStep(0); setPick({ service: null, master: null, day: 0, time: null }); }} className="mt-6 rounded-full border border-line px-6 py-2.5 text-[11px] uppercase tracking-wide2 text-ink/80 transition hover:text-ink">Записать ещё</button>
+                <button onClick={() => { setDone(false); setStep(0); setPick({ service: null, master: null, day: 0, time: null }); setName(""); setPhone(""); setAgree(false); setError(null); }} className="mt-6 rounded-full border border-line px-6 py-2.5 text-[11px] uppercase tracking-wide2 text-ink/80 transition hover:text-ink">Записать ещё</button>
               </motion.div>
             ) : (
               <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35, ease }}>
@@ -112,9 +125,18 @@ export default function Booking() {
                       {pick.service} · {pick.master}<br />
                       <span className="text-ink/45">{days[pick.day].wd} {days[pick.day].n}, {pick.time || "—"}</span>
                     </div>
-                    <input placeholder="Ваше имя" className="w-full rounded-xl border border-line bg-transparent px-4 py-3 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
-                    <input placeholder="Телефон" inputMode="tel" className="w-full rounded-xl border border-line bg-transparent px-4 py-3 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
-                    <button onClick={() => setDone(true)} className="w-full rounded-full bg-gold py-3.5 text-[11px] uppercase tracking-wide2 text-base transition hover:opacity-90">Подтвердить запись</button>
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ваше имя" className="w-full rounded-xl border border-line bg-transparent px-4 py-3 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
+                    <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" inputMode="tel" className="w-full rounded-xl border border-line bg-transparent px-4 py-3 text-sm text-ink placeholder:text-ink/35 focus:border-ink/40 focus:outline-none" />
+                    <ConsentCheckbox
+                      id="section-booking-personal-data-consent"
+                      checked={agree}
+                      onChange={(next) => {
+                        setAgree(next);
+                        if (next) setError(null);
+                      }}
+                      error={error}
+                    />
+                    <button onClick={submit} disabled={!name.trim() || phone.trim().length < 6} className={`w-full rounded-full py-3.5 text-[11px] uppercase tracking-wide2 transition ${name.trim() && phone.trim().length >= 6 ? "bg-gold text-base hover:opacity-90" : "cursor-not-allowed border border-line text-ink/30"}`}>Подтвердить запись</button>
                     <p className="text-center text-[10px] uppercase tracking-wide2 text-ink/35">Демо · подключается к YClients</p>
                   </div>
                 )}

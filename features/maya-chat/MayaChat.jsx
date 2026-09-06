@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { streamMaya } from "@/lib/api/maya";
 import { QUICK_PROMPTS } from "@/data/brand";
 import RealtimeVoice from "@/features/voice-assistant/RealtimeVoice";
-import { useAuth, TelegramLogin } from "@/features/auth/auth";
+import { useAuth, TelegramConsentLogin } from "@/features/auth/auth";
+import ConsentCheckbox, { CONSENT_ERROR } from "@/components/ConsentCheckbox";
 
 const ease = [0.16, 1, 0.3, 1];
+const CHAT_CONSENT_KEY = "maya_chat_personal_data_consent";
 
 // Озвучка ответа в голосовом режиме (браузерный синтез речи)
 function speak(text) {
@@ -39,6 +41,8 @@ export default function MayaChat() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [voice, setVoice] = useState(false);
+  const [chatAgree, setChatAgree] = useState(false);
+  const [chatConsentError, setChatConsentError] = useState(null);
   const { user, ready: authReady } = useAuth();
   const abortRef = useRef(null);
   const scrollRef = useRef(null);
@@ -51,10 +55,32 @@ export default function MayaChat() {
     });
   }, []);
 
+  useEffect(() => {
+    try {
+      setChatAgree(localStorage.getItem(CHAT_CONSENT_KEY) === "1");
+    } catch {}
+  }, []);
+
+  const updateChatAgree = useCallback((next) => {
+    setChatAgree(next);
+    if (next) {
+      setChatConsentError(null);
+      try { localStorage.setItem(CHAT_CONSENT_KEY, "1"); } catch {}
+    } else {
+      try { localStorage.removeItem(CHAT_CONSENT_KEY); } catch {}
+    }
+  }, []);
+
   const send = useCallback(async (text, opts = {}) => {
     const content = (text ?? "").trim();
     if (!content || streaming) return;
     if (!user) { setOpen(true); return; } // нет входа — снизу покажется баннер входа
+    if (!chatAgree) {
+      setOpen(true);
+      setChatConsentError(CONSENT_ERROR);
+      return;
+    }
+    setChatConsentError(null);
     setInput("");
     setMessages((m) => [...m, { role: "user", content }, { role: "assistant", content: "" }]);
     setStreaming(true);
@@ -88,7 +114,7 @@ export default function MayaChat() {
       setStreaming(false);
       abortRef.current = null;
     }
-  }, [streaming, scrollDown, user]);
+  }, [streaming, scrollDown, user, chatAgree]);
 
   const stop = useCallback(() => abortRef.current?.abort(), []);
 
@@ -155,7 +181,19 @@ export default function MayaChat() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => { if (user) setVoice(true); }} aria-label="Голосовой режим" title={user ? "Голосовой режим" : "Войдите, чтобы говорить голосом"} className={`rounded-full p-2 transition-colors hover:bg-ink/5 ${user ? "text-ink/55 hover:text-ink" : "text-ink/25"}`}>
+                <button
+                  onClick={() => {
+                    if (!user) return;
+                    if (!chatAgree) {
+                      setChatConsentError(CONSENT_ERROR);
+                      return;
+                    }
+                    setVoice(true);
+                  }}
+                  aria-label="Голосовой режим"
+                  title={user ? "Голосовой режим" : "Войдите, чтобы говорить голосом"}
+                  className={`rounded-full p-2 transition-colors hover:bg-ink/5 ${user ? "text-ink/55 hover:text-ink" : "text-ink/25"}`}
+                >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
                 </button>
                 <button onClick={() => setOpen(false)} aria-label="Закрыть" className="rounded-full p-2 text-ink/55 transition-colors hover:bg-ink/5 hover:text-ink">
@@ -205,7 +243,7 @@ export default function MayaChat() {
                 <p className="text-[13px] font-light leading-relaxed text-ink/70">
                   Войдите через Telegram, чтобы поговорить с <span className="font-maya text-maya">Maya</span> по-настоящему.
                 </p>
-                <div className="mt-3"><TelegramLogin /></div>
+                <div className="mt-3"><TelegramConsentLogin onConsentAccepted={() => updateChatAgree(true)} /></div>
                 <p className="mt-2 text-[10px] uppercase tracking-wide2 text-ink/30">Вход работает на боевом домене сайта</p>
               </div>
             ) : (
@@ -230,6 +268,15 @@ export default function MayaChat() {
                     </button>
                   )}
                 </div>
+                {!chatAgree && (
+                  <ConsentCheckbox
+                    id="maya-chat-personal-data-consent"
+                    checked={chatAgree}
+                    onChange={updateChatAgree}
+                    error={chatConsentError}
+                    className="mt-3"
+                  />
+                )}
               </div>
             )}
 

@@ -41,7 +41,8 @@ export default function Home() {
           </a>
         </div>
         <div className="mt-8 flex flex-col items-center justify-center gap-2 text-center text-[10px] uppercase tracking-wide2 text-ink/35">
-          <Link href="/privacy" className="transition-colors hover:text-ink/70">Политика конфиденциальности</Link>
+          <Link href="/personal-data-policy" className="transition-colors hover:text-ink/70">Политика обработки персональных данных</Link>
+          <Link href="/personal-data-consent" className="transition-colors hover:text-ink/70">Согласие на обработку персональных данных</Link>
           <span>© 2026 {BRAND.name}</span>
           <span className="text-ink/25">Designed by <span className="text-ink/50">MOCINE</span></span>
         </div>
